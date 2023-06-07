@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cd /Applications/MAMP/htdocs/ 
+wget https://wordpress.org/latest.zip 
+unzip latest.zip 
+rm -rf latest.zip

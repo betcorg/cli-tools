@@ -1,0 +1,73 @@
+#!/bin/bash
+
+# Script de conversión de imágenes a WebP
+# Este script de Bash permite convertir imágenes en formato JPEG y PNG a formato WebP utilizando la herramienta cwebp. También ofrece la opción de conservar los archivos originales o eliminarlos después de la conversión. Además, acepta como primer argumento el nombre de un archivo específico a convertir, generando un archivo de salida con el mismo nombre pero con extensión WebP.
+
+# Uso
+
+# ./script.sh [opciones] [archivo]
+
+# Opciones
+
+# -r: Modo recursivo. Busca imágenes en formato JPEG y PNG de forma recursiva en el directorio actual y sus subdirectorios. Esta opción es mutuamente exclusiva con el argumento de archivo.
+# -o: Conservar archivos originales. Si se especifica esta opción, los archivos originales no se eliminarán después de la conversión.
+
+# Argumento
+
+# [archivo]: Opcional. El nombre de un archivo específico a convertir. Si se proporciona este argumento, el script ignorará cualquier opción de búsqueda recursiva y archivos en el directorio actual. El archivo de salida tendrá el mismo nombre que el archivo original, pero con la extensión ".webp".
+
+
+
+recursive=false
+keep_originals=false
+input_file=""
+
+while getopts "ro" opt; do
+  case $opt in
+    r)
+      recursive=true
+      ;;
+    o)
+      keep_originals=true
+      ;;
+    \?)
+      echo "Opción inválida: -$OPTARG" >&2
+      exit 1
+      ;;
+  esac
+done
+
+shift $((OPTIND - 1))
+if [ $# -gt 0 ]; then
+  input_file=$1
+fi
+
+if [ -n "$input_file" ]; then
+  if [ ! -f "$input_file" ]; then
+    echo "El archivo $input_file no existe."
+    exit 1
+  fi
+
+  cwebp -quiet "$input_file" -o "${input_file%.*}.webp"
+
+  if [ $keep_originals = false ]; then
+    rm "$input_file"
+  fi
+else
+  if [ $recursive = true ]; then
+    find . -type f \( -iname "*.jpg" -o -iname "*.png" \) -print0 | while read -d $'\0' file
+    do
+      cwebp -quiet "$file" -o "${file%.*}.webp"
+      if [ $keep_originals = false ]; then
+        rm "$file"
+      fi
+    done
+  else
+    for file in *.jpg *.png; do
+      cwebp -quiet "$file" -o "${file%.*}.webp"
+      if [ $keep_originals = false ]; then
+        rm "$file"
+      fi
+    done
+  fi
+fi

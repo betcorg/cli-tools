@@ -1,0 +1,7 @@
+#!/bin/bash
+
+archivo_entrada=$1
+archivo_salida=$2
+clave_simetrica=$3
+
+openssl enc -aes-256-cbc -salt -in "${archivo_entrada}" -out "${archivo_salida}" -pass "pass:${clave_simetrica}"

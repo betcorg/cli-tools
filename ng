@@ -1,0 +1,5 @@
+#!/bin/bash
+
+port=$1
+ngrok http 127.0.0.1:$port
+open -a 'Google Chrome' 127.0.0.1:4040
